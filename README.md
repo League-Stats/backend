@@ -1,6 +1,6 @@
-#League Stats
+# League Stats
 
-##Regions:
+## Regions:
 - **BR1** *br1.api.riotgames.com*
 - **EUN1** *eun1.api.riotgames.com*
 - **EUW1** *euw1.api.riotgames.com*
