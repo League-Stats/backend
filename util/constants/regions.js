@@ -1,0 +1,10 @@
+module.exports = {
+    BR: "https://br1.api.riotgames.com",
+    EUNE: "https://eun1.api.riotgames.com",
+    EUW: "https://euw1.api.riotgames.com",
+    JP: "https://jp1.api.riotgames.com",
+    KR: "https://kr.api.riotgames.com",
+    LAN: "https://la1.api.riotgames.com",
+    LAS: "https://la2.api.riotgames.com",
+    NA: "https://na1.api.riotgames.com"
+}
