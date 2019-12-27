@@ -97,10 +97,30 @@ server.get('/matchhistory', async (req, res) => {
                 "X-Riot-Token": RIOT_TOKEN
             }
         });
-        console.log(accountResponse.data.matches)
-        res.status(200).json(accountResponse);
+        res.status(200).json(accountResponse.data.matches);
     } catch(error) {
         res.status(400).json(error);
+    }
+})
+
+server.get('/matchdetails', async (req, res) => {
+    const matchId = req.body.matchId;
+
+    if(!matchId){
+        res.status(400).json({ message: "ERROR: matchId required"})
+        return
+    };
+
+    try{
+        const accountResponse = await axios.get(`${currentRegionApi}/lol/match/v4/matches/${matchId}`, {
+            headers: {
+                "X-Riot-Token": RIOT_TOKEN
+            }
+        });
+        res.status(200).json(accountResponse.data);
+    } catch(error) {
+        res.status(400).json(error);
+        return
     }
 })
 
