@@ -89,8 +89,6 @@ server.get('/matchhistory', async (req, res) => {
         res.status(400).json({ message: "Missing AccountID or ID"})
     }
 
-    let summonerMatchHistory = [];
-
     try{
         const accountResponse = await axios.get(`${currentRegionApi}/lol/match/v4/matchlists/by-account/${summonerAccount.accountId}`, {
             headers: {
@@ -117,6 +115,7 @@ server.get('/matchdetails', async (req, res) => {
                 "X-Riot-Token": RIOT_TOKEN
             }
         });
+        console.log(accountResponse.data)
         res.status(200).json(accountResponse.data);
     } catch(error) {
         res.status(400).json(error);
