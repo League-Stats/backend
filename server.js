@@ -18,10 +18,7 @@ server.get('/', (req, res) => {
     res.send('alive')
 });
 
-let currentRegionApi;
-let summonerAccount = {};
-
-server.get('/accountInfo', async (req, res) => {
+server.get('/rank', async (req, res) => {
     const summonerName = req.body.summonerName;
     const summonerRegion = req.body.summonerRegion;
 
@@ -35,7 +32,8 @@ server.get('/accountInfo', async (req, res) => {
         return
     };
 
-    currentRegionApi = regions[summonerRegion];
+    let currentRegionApi = regions[summonerRegion];
+    let summonerAccount = {};
 
     try{
         const { data } = await axios.get(`${currentRegionApi}/lol/summoner/v4/summoners/by-name/${summonerName}`, {
@@ -51,17 +49,8 @@ server.get('/accountInfo', async (req, res) => {
             profileIconId: data.profileIconId,
             summonerLevel: data.summonerLevel
         }
-
-        res.status(200).json(summonerAccount);
     } catch(error) {
         res.status(400).json(error);
-        return
-    }
-})
-
-server.get('/rank', async (req, res) => {
-    if(!summonerAccount.id || !summonerAccount.accountId){
-        res.status(400).json({ message: "Missing AccountID or ID"})
     }
 
     let summonerRank = [];
@@ -91,8 +80,38 @@ server.get('/rank', async (req, res) => {
 })
 
 server.get('/matchhistory', async (req, res) => {
-    if(!summonerAccount.id || !summonerAccount.accountId){
-        res.status(400).json({ message: "Missing AccountID or ID"})
+    const summonerName = req.body.summonerName;
+    const summonerRegion = req.body.summonerRegion;
+
+    if(!summonerName || !summonerRegion){
+        res.status(400).json({ message: "ERROR: summoner name and region required"})
+        return
+    };
+
+    if(!regions[summonerRegion]){
+        res.status(400).json({ message: `ERROR: invalid region ${summonerRegion}`})
+        return
+    };
+
+    let currentRegionApi = regions[summonerRegion];
+    let summonerAccount = {};
+
+    try{
+        const { data } = await axios.get(`${currentRegionApi}/lol/summoner/v4/summoners/by-name/${summonerName}`, {
+            headers: {
+                "X-Riot-Token": RIOT_TOKEN
+            }
+        });
+
+        summonerAccount = {
+            id: data.id,
+            accountId: data.accountId,
+            name: data.name,
+            profileIconId: data.profileIconId,
+            summonerLevel: data.summonerLevel
+        }
+    } catch(error) {
+        res.status(400).json(error);
     }
 
     try{
