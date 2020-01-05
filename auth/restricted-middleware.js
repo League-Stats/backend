@@ -3,6 +3,7 @@ const secret = require('./secret');
 
 module.exports = (req, res, next) => {
     const token = req.headers.authorization;
+    const currentUser = req.subject;
     if(token) {
         jwt.verify(token, secret.jwtSecret, (error, decodedToken) => {
             if(error){
