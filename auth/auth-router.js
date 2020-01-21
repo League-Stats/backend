@@ -6,14 +6,24 @@ const Users = require('../users/users-model');
 
 router.post('/register', async (req, res) => {
     try{
-        const user = req.body;
-        const hash = bcrypt.hashSync(user.password, 4);
-        user.password = hash;
-        const saved = await Users.add(user);
-        res.status(200).json(saved)
-    } catch(error){
+        const { username } = req.body;
+        const check = await Users.findBy({username: username});
+        if(check.length === 0){
+            try{
+                const user = req.body;
+                const hash = bcrypt.hashSync(user.password, 4);
+                user.password = hash;
+                const saved = await Users.add(user);
+                res.status(200).json(saved)
+            } catch(error){
+                res.status(500).json({ message: "Error Registering" })
+            }
+        } else {
+            res.status(409).json({ message: "User already exists" })
+        }
+    } catch(error) {
         console.log(error)
-        res.status(500).json({ message: "Error Registering" })
+        res.status(500).json({ message: "Error checking"})
     }
 })
 
