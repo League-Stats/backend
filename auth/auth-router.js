@@ -26,7 +26,7 @@ router.post('/register', async (req, res) => {
         res.status(500).json({ message: "Error checking"})
     }
 })
-
+ 
 router.post('/login', async (req, res) => {
     try{
         let { username, password } = req.body;
