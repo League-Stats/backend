@@ -4,6 +4,43 @@ const axios = require('axios');
 const { RIOT_TOKEN } = process.env;
 const regions = require('../util/constants/regions');
 
+router.post('/name', async (req, res) => {
+    const summonerName = req.body.summonerName;
+    const summonerRegion = req.body.summonerRegion;
+
+    if(!summonerName || !summonerRegion){
+        res.status(400).json({ message: "ERROR: summoner name and region required"})
+        return
+    };
+
+    if(!regions[summonerRegion]){
+        res.status(400).json({ message: `ERROR: invalid region ${summonerRegion}`})
+        return
+    };
+
+    let currentRegionApi = regions[summonerRegion];
+    let summonerAccount = {};
+
+    try{
+        const { data } = await axios.get(`${currentRegionApi}/lol/summoner/v4/summoners/by-name/${summonerName}`, {
+            headers: {
+                "X-Riot-Token": RIOT_TOKEN
+            }
+        });
+
+        summonerAccount = {
+            id: data.id,
+            accountId: data.accountId,
+            name: data.name,
+            profileIconId: data.profileIconId,
+            summonerLevel: data.summonerLevel
+        }
+        res.status(200).json({ "name": summonerAccount.name })
+    } catch(error) {
+        res.status(400).json(error);
+    }
+})
+
 router.post('/rank', async (req, res) => {
     const summonerName = req.body.summonerName;
     const summonerRegion = req.body.summonerRegion;
