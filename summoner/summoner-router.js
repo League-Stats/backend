@@ -4,7 +4,7 @@ const axios = require('axios');
 const { RIOT_TOKEN } = process.env;
 const regions = require('../util/constants/regions');
 
-router.post('/name', async (req, res) => {
+router.post('/summoner', async (req, res) => {
     const summonerName = req.body.summonerName;
     const summonerRegion = req.body.summonerRegion;
 
@@ -35,7 +35,11 @@ router.post('/name', async (req, res) => {
             profileIconId: data.profileIconId,
             summonerLevel: data.summonerLevel
         }
-        res.status(200).json({ "name": summonerAccount.name })
+        res.status(200).json({
+            "name": summonerAccount.name,
+            "icon": summonerAccount.profileIconId,
+            "level": summonerAccount.summonerLevel
+        })
     } catch(error) {
         res.status(400).json(error);
     }
