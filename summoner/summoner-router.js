@@ -49,8 +49,14 @@ router.post('/rank', async (req, res) => {
         });
 
         data.forEach(queue => {
+            let qType = "";
+            if(queue.queueType === "RANKED_SOLO_5x5"){
+                qType = "Solo/Duo"
+            } else if (queue.queueType === "RANKED_FLEX_SR"){
+                qType = "Flex 5v5"
+            }
             summonerRank.push({
-                queueType: queue.queueType,
+                queueType: qType,
                 tier: queue.tier,
                 rank: queue.rank,
                 leaguePoints: queue.leaguePoints,
