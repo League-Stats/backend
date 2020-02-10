@@ -4,7 +4,7 @@ const axios = require('axios');
 const { RIOT_TOKEN } = process.env;
 const regions = require('../util/constants/regions');
 
-router.get('/rank', async (req, res) => {
+router.post('/rank', async (req, res) => {
     const summonerName = req.body.summonerName;
     const summonerRegion = req.body.summonerRegion;
 
@@ -65,7 +65,7 @@ router.get('/rank', async (req, res) => {
     }
 })
 
-router.get('/matchhistory', async (req, res) => {
+router.post('/matchhistory', async (req, res) => {
     const summonerName = req.body.summonerName;
     const summonerRegion = req.body.summonerRegion;
 
@@ -112,7 +112,7 @@ router.get('/matchhistory', async (req, res) => {
     }
 })
 
-router.get('/matchdetails', async (req, res) => {
+router.post('/matchdetails', async (req, res) => {
     const matchId = req.body.matchId;
     const summonerRegion = req.body.summonerRegion;
 
