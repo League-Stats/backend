@@ -337,5 +337,56 @@ router.post('/matchdetails', async (req, res) => {
     }
 })
 
+router.post('/matchandtimeline', async (req, res) => {
+    const matchId = req.body.matchId;
+    const summonerRegion = req.body.summonerRegion;
+
+    if(!summonerRegion){
+        res.status(400).json({ message: "ERROR: region required"})
+        return
+    };
+
+    if(!regions[summonerRegion]){
+        res.status(400).json({ message: `ERROR: invalid region ${summonerRegion}`})
+        return
+    };
+
+    if(!matchId){
+        res.status(400).json({ message: "ERROR: matchId required"})
+        return
+    };
+
+    let currentRegionApi = regions[summonerRegion];
+    let matchData;
+    let timelineData;
+    let rolesData;
+
+    try{
+        const getMatchData = await axios.get(`${currentRegionApi}/lol/match/v4/matches/${matchId}`, {
+            headers: {
+                "X-Riot-Token": RIOT_TOKEN
+            }
+        });
+        matchData = JSON.stringify(getMatchData.data)
+
+        const getTimelineData = await axios.get(`${currentRegionApi}/lol/match/v4/timelines/by-match/${matchId}`, {
+            headers: {
+                "X-Riot-Token": RIOT_TOKEN
+            }
+        });
+        timelineData = JSON.stringify(getTimelineData.data)
+
+        const getRoles = await axios.post(`https://hextechgg-mlroles-py.herokuapp.com/api/roleml`, {
+            match: matchData,
+            timeline: timelineData
+        });
+        rolesData = getRoles.data
+        console.log(rolesData)
+        res.status(200).json("success")
+    } catch(error) {
+        res.status(400).json(error);
+    }
+})
+
 
 module.exports = router;
