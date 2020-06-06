@@ -381,8 +381,7 @@ router.post('/matchandtimeline', async (req, res) => {
             timeline: timelineData
         });
         rolesData = getRoles.data
-        console.log(rolesData)
-        res.status(200).json("success")
+        res.status(200).json(rolesData)
     } catch(error) {
         res.status(400).json(error);
     }
