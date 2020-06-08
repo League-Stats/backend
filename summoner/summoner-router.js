@@ -309,6 +309,8 @@ router.post('/matchdetails', async (req, res) => {
 
 
          let matchData = {
+            matchId: matchId,
+            region: summonerRegion,
             queueId: data.queueId,
             participantsInfo: mergeParticipantInfo,
             gameMode: data.gameMode,
