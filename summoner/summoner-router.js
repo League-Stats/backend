@@ -185,6 +185,17 @@ router.get('/matchhistory/:region/:name', async (req, res) => {
                 }
             }
 
+            const convertGameDuration = (time) => {
+                const hours = Math.floor(time / 3600);
+                const minutes = Math.floor(time % 3600 / 60);
+                const seconds = Math.floor(time % 3600 % 60);
+
+                const showHours = hours > 0 ? hours + "h " : "";
+                const showMinutes = minutes > 0 ? minutes + "m " : "";
+                const showSeconds = seconds > 0 ? seconds + "s" : "";
+                return showHours + showMinutes + showSeconds
+            }
+
             let participantIdentities = details.participantIdentities.map(smnr => {
                 return {
                     player: {
@@ -324,6 +335,7 @@ router.get('/matchhistory/:region/:name', async (req, res) => {
                     }
                 }),
                 gameDuration: details.gameDuration,
+                gameDurationConverted: convertGameDuration(details.gameDuration),
                 gameCreation: details.gameCreation
             }
 
