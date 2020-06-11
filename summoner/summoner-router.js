@@ -121,27 +121,52 @@ router.get('/matchhistory/:region/:name', async (req, res) => {
         });
 
         const historyAll = getHistory.data.matches
-        const history = historyAll.slice(0, 10)
+        const history = historyAll.slice(0, 5)
 
         let results = await Promise.all(history.map(async match => {
             const { gameId } = match
             const region = match.platformId
 
             let details;
-
+            let mlRolesMatch;
+            let mlRolesTimeline;
+            let rolesData;
+            
             try {
                 const getDetails = await axios.get(`${currentRegionApi}/lol/match/v4/matches/${gameId}`, {
                     headers: {
                         "X-Riot-Token": RIOT_TOKEN
                     }
                 });
-
                 details = getDetails.data
+                mlRolesMatch = JSON.stringify(getDetails.data)
             } catch(err) {
                 console.log(err)
             }
 
-    
+            if([420, 430, 400].indexOf(details.queueId) > -1){
+                try {
+                    const getTimelineData = await axios.get(`${currentRegionApi}/lol/match/v4/timelines/by-match/${gameId}`, {
+                        headers: {
+                            "X-Riot-Token": RIOT_TOKEN
+                        }
+                    });
+                    mlRolesTimeline = JSON.stringify(getTimelineData.data)
+                } catch(err) {
+                    console.log(err)
+                }
+
+                try {
+                    const getRoles = await axios.post(`https://hextechgg-mlroles-py.herokuapp.com/api/roleml`, {
+                        match: mlRolesMatch,
+                        timeline: mlRolesTimeline
+                    });
+                    rolesData = getRoles.data
+                } catch(err) {
+                console.log(err) 
+                }
+            }
+
             let participantIdentities = details.participantIdentities.map(smnr => {
                 return {
                     player: {
@@ -159,7 +184,7 @@ router.get('/matchhistory/:region/:name', async (req, res) => {
                     spell1Id: smnr.spell1Id,
                     participantId: smnr.participantId,
                     timeline: {
-                        lane: smnr.timeline.lane,
+                        lane: rolesData ? rolesData[`${smnr.participantId}`] : smnr.timeline.lane,
                         participantId: smnr.timeline.participantId
                     },
                     spell2Id: smnr.spell2Id,
@@ -289,67 +314,13 @@ router.get('/matchhistory/:region/:name', async (req, res) => {
             }
         }))
         .then(data => {
-            console.log(data)
             return data
         })
-
-        console.log(results)
 
         res.status(200).json(results);
     } catch(error) {
         res.status(400).json(error);
     }
 })
-
-router.post('/matchandtimeline', async (req, res) => {
-    const matchId = req.body.matchId;
-    const region = req.body.region;
-
-    if(!region){
-        res.status(400).json({ message: "ERROR: region required"})
-        return
-    };
-
-    if(!regions[region]){
-        res.status(400).json({ message: `ERROR: invalid region ${region}`})
-        return
-    };
-
-    if(!matchId){
-        res.status(400).json({ message: "ERROR: matchId required"})
-        return
-    };
-
-    let currentRegionApi = regions[region];
-    let matchData;
-    let timelineData;
-    let rolesData;
-
-    try{
-        const getMatchData = await axios.get(`${currentRegionApi}/lol/match/v4/matches/${matchId}`, {
-            headers: {
-                "X-Riot-Token": RIOT_TOKEN
-            }
-        });
-        matchData = JSON.stringify(getMatchData.data)
-
-        const getTimelineData = await axios.get(`${currentRegionApi}/lol/match/v4/timelines/by-match/${matchId}`, {
-            headers: {
-                "X-Riot-Token": RIOT_TOKEN
-            }
-        });
-        timelineData = JSON.stringify(getTimelineData.data)
-
-        const getRoles = await axios.post(`https://hextechgg-mlroles-py.herokuapp.com/api/roleml`, {
-            match: matchData,
-            timeline: timelineData
-        });
-        rolesData = getRoles.data
-        res.status(200).json(rolesData)
-    } catch(error) {
-        res.status(400).json(error);
-    }
-})
-
 
 module.exports = router;
