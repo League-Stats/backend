@@ -139,6 +139,7 @@ router.get('/matchhistory/:region/:name', async (req, res) => {
                     }
                 });
                 details = getDetails.data
+                console.log(details.participantIdentities)
                 mlRolesMatch = JSON.stringify(getDetails.data)
             } catch(err) {
                 console.log(err)
@@ -170,7 +171,7 @@ router.get('/matchhistory/:region/:name', async (req, res) => {
             let participantIdentities = details.participantIdentities.map(smnr => {
                 return {
                     player: {
-                        name: smnr.player.name,
+                        summonerName: smnr.player.summonerName,
                         currentAccountId: smnr.player.currentAccountId,
                         profileIcon: smnr.player.profileIcon,
                         summonerId: smnr.player.summonerId,
