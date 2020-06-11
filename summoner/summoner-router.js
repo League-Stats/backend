@@ -98,6 +98,12 @@ router.get('/matchhistory/:region/:name', async (req, res) => {
     let summonerAccount = {};
 
     try{
+        const getQueues = await axios(
+            "https://static.developer.riotgames.com/docs/lol/queues.json",
+        )
+
+        const queues = getQueues.data
+
         const getProfile = await axios.get(`${currentRegionApi}/lol/summoner/v4/summoners/by-name/${name}`, {
             headers: {
                 "X-Riot-Token": RIOT_TOKEN
@@ -139,7 +145,7 @@ router.get('/matchhistory/:region/:name', async (req, res) => {
                     }
                 });
                 details = getDetails.data
-                console.log(details.participantIdentities)
+                // console.log(details.participantIdentities)
                 mlRolesMatch = JSON.stringify(getDetails.data)
             } catch(err) {
                 console.log(err)
@@ -165,6 +171,17 @@ router.get('/matchhistory/:region/:name', async (req, res) => {
                     rolesData = getRoles.data
                 } catch(err) {
                 console.log(err) 
+                }
+            }
+
+            const convertQueueId = (queueId) => {
+                const mode = queues.find(mode => mode.queueId === details.queueId).description.slice(0, -6)
+                if(mode === "5v5 Ranked Solo"){
+                    return "Ranked Solo" 
+                } else if(mode === "5v5 ARAM"){
+                    return "ARAM"
+                } else {
+                    return mode
                 }
             }
 
@@ -290,6 +307,7 @@ router.get('/matchhistory/:region/:name', async (req, res) => {
                 matchId: gameId,
                 region: region,
                 queueId: details.queueId,
+                queueIdConverted: convertQueueId(details.queueId),
                 participantsInfo: mergeParticipantInfo,
                 gameMode: details.gameMode,
                 mapId: details.mapId,
